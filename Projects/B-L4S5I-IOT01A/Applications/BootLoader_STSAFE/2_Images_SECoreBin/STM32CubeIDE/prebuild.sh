@@ -60,7 +60,7 @@ ret=$?
 if [ $ret = "0" ]; then
     if [ $crypto == "SECBOOT_X509_ECDSA_WITHOUT_ENCRYPT_SHA256" ]; then
     #ECCDSA_WITHOUT_ENCRYPT_SHA256
-        oemkey="$1/../../STSAFE_Provisioning/Binary/STSAFE_PAIRING_keys.bin"
+        oemkey="$1/../../STSAFE_Provisioning/Binary/STSAFE_PAIRING_keys.key"
         command=$cmd" "$prepareimage" trans -a GNU -k "$oemkey" -f SE_ReadKey_Pairing -s .SE_Key_Data -e 1 -v V7M"
         echo $command
         $command > $asmfile
@@ -76,7 +76,7 @@ if [ $ret = 0 ]; then
   $command
   ret=$?
   if [ $ret = 0 ]; then
-    kms_blob_oemkey=$SBSFUBootLoader"/2_Images_KMS_Blob/Binary/OEM_KEY_COMPANY1_key_AES_CBC.bin"
+    kms_blob_oemkey=$SBSFUBootLoader"/2_Images_KMS_Blob/Binary/OEM_KEY_COMPANY1_key_AES_CBC.key"
     command=$cmd" "$prepareimage" inject -k "$kms_blob_oemkey" -f "$1"/kms_platf_objects_config.h.tmp -p @AES_BLOB_KEY@ "$1"/kms_platf_objects_config.h"
     echo $command
     $command
