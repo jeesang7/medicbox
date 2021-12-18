@@ -160,7 +160,7 @@ static uint32_t argmax(const float * values, uint32_t len)
 /* This task read the sensor data from the STM32 target and publishes to the telemetry queue
  *
  */
-void onboardSensorReaderTask() {
+void onboardSensorReaderTask(void *mode) {
 
 
 
@@ -190,7 +190,7 @@ void onboardSensorReaderTask() {
 
 	gucSensorTopicName[31] = '\0';
 
-	IotLogInfo("ENTRY : onboardSensorReaderTask ");
+	IotLogInfo("ENTRY : onboardSensorReaderTask, mode: %d ", *(int *)mode);
 	prvSensorsInit();
 	AI_Init(ai_network_data_weights_get(), activations);
 
@@ -250,8 +250,11 @@ void onboardSensorReaderTask() {
 				"Publishing sensor data as json string: %s of length [ %d]\n",
 				pSensorPayload, snprintfreturn);
 
-	   sendToTelemetryQueue(gucSensorTopicName, pSensorPayload,
-				            snprintfreturn);
+	   if ( *(int *)mode == 1 ) {
+       sendToTelemetryQueue(gucSensorTopicName, pSensorPayload, snprintfreturn);
+     } else {
+       IotLogInfo("Skipped sendToTelemetryQueue");
+     }
 
 	} while (j++ < SENSOR_DATA_NUM_POLL_CYCLE);
 

@@ -52,7 +52,7 @@ SOFTWARE.
 
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 extern void _sensorDataPublisherTask();
-extern void onboardSensorReaderTask();
+extern void onboardSensorReaderTask(void *mode);
 extern int aws_custom_mqttlib_initialise(
         bool awsIotMqttMode, const char * pIdentifier,
         void * pNetworkServerInfo, void * pNetworkCredentialInfo,
@@ -68,6 +68,7 @@ int aws_customdemo_main(bool awsIotMqttMode, const char * pIdentifier,
                  const IotNetworkInterface_t * pNetworkInterface)
 {
     int status = EXIT_FAILURE;
+    int mode = 1;
 
     IotLogInfo("ENTRY: aws_custom_demo_main with awsIotMqttMode: %d\r\n", awsIotMqttMode);
 
@@ -78,6 +79,7 @@ int aws_customdemo_main(bool awsIotMqttMode, const char * pIdentifier,
 
     if (status == EXIT_SUCCESS)
     {
+        mode = 1;
         IotLogInfo("AWS Custom Demo Initialization is Successful");
         //Start the sensor polling Task here. In production code, these two must be done asynchronously.
         // As the device logic should function independent of network connectivity
@@ -89,7 +91,7 @@ int aws_customdemo_main(bool awsIotMqttMode, const char * pIdentifier,
         democonfigDEMO_PRIORITY,
                                  democonfigDEMO_STACKSIZE);
 
-        Iot_CreateDetachedThread(onboardSensorReaderTask, NULL,
+        Iot_CreateDetachedThread(onboardSensorReaderTask, &mode,
         democonfigDEMO_PRIORITY,
                                  democonfigDEMO_STACKSIZE);
 
@@ -102,7 +104,14 @@ int aws_customdemo_main(bool awsIotMqttMode, const char * pIdentifier,
     }
     else
     {
+        mode = 0;
         IotLogInfo("AWS Custom Demo Initialization Failed");
+        IotLogInfo("So, only onboardSensorReaderTask started");
+        Iot_CreateDetachedThread(onboardSensorReaderTask, &mode, democonfigDEMO_PRIORITY, democonfigDEMO_STACKSIZE);
+
+        while (1) { 
+            vTaskDelay(pdMS_TO_TICKS(3000));
+        }
     }
 
     return EXIT_SUCCESS;
