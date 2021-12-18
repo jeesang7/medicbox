@@ -73,6 +73,8 @@ void Error_Handler(void);
 #define ES_WIFI_WAKE_UP_GPIO_Port GPIOB
 #define USER_LED2_Pin GPIO_PIN_14
 #define USER_LED2_GPIO_Port GPIOB
+#define MEDICINE_LED_Pin GPIO_PIN_4
+#define MEDICINE_LED_GPIO_Port GPIOA
 #define SPI3_SCK_Pin GPIO_PIN_10
 #define SPI3_SCK_GPIO_Port GPIOC
 #define SPI3_MISO_Pin GPIO_PIN_11

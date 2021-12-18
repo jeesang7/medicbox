@@ -137,6 +137,7 @@ void vDevModePrintDevCertificate( void );
 static void prvInitializeHeap( void );
 void vApplicationDaemonTaskStartupHook( void );
 void Led_SetState(bool on);
+void MedicineLed_SetState(bool on);
 void Led_Blink(int period, int duty, int count);
 
 /* USER CODE END PFP */
@@ -479,6 +480,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, ES_WIFI_WAKE_UP_Pin|USER_LED2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(MEDICINE_LED_GPIO_Port, MEDICINE_LED_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ES_WIFI_NSS_GPIO_Port, ES_WIFI_NSS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : USER_BUTTON_Pin */
@@ -500,6 +504,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins :  MEDICINE_LED_Pin */
+  GPIO_InitStruct.Pin = MEDICINE_LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(MEDICINE_LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ES_WIFI_NSS_Pin */
   GPIO_InitStruct.Pin = ES_WIFI_NSS_Pin;
@@ -735,6 +746,11 @@ void Led_SetState(bool on)
   HAL_GPIO_WritePin(USER_LED2_GPIO_Port, USER_LED2_Pin, (on == true) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
+void MedicineLed_SetState(bool on)
+{
+  HAL_GPIO_WritePin(MEDICINE_LED_GPIO_Port, MEDICINE_LED_Pin, (on == true) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+
 /**
  * @brief Blink LED for 'count' cycles of 'period' period and 'duty' ON duration.
  * duty < 0 tells to start with an OFF state.
@@ -748,8 +764,10 @@ void Led_Blink(int period, int duty, int count)
     do
     {
       Led_SetState(true);
+      MedicineLed_SetState(true);
       HAL_Delay(duty);
       Led_SetState(false);
+      MedicineLed_SetState(false);
       HAL_Delay(period - duty);
     } while (count--);
   }
@@ -760,8 +778,10 @@ void Led_Blink(int period, int duty, int count)
     do
     {
       Led_SetState(false);
+      MedicineLed_SetState(false);
       HAL_Delay(period + duty);
       Led_SetState(true);
+      MedicineLed_SetState(true);
       HAL_Delay(-duty);
     } while (count--);
   }
