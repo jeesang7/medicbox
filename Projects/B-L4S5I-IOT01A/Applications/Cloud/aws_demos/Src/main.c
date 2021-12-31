@@ -113,6 +113,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 static __IO uint8_t button_flags = 0;       /* Counts the button interrupts */
+static uint8_t medicine_completion = 0;
 
 /* USER CODE END PV */
 
@@ -552,6 +553,7 @@ void vApplicationIdleHook( void )
     if (button_flags > 0)
     {
       button_flags = 0;
+      medicine_completion = 1;
       Led_Blink(100, 50, 5);
     }
 }
@@ -749,6 +751,11 @@ void Led_SetState(bool on)
 void MedicineLed_SetState(bool on)
 {
   HAL_GPIO_WritePin(MEDICINE_LED_GPIO_Port, MEDICINE_LED_Pin, (on == true) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+
+uint8_t Medicine_GetState()
+{
+  return medicine_completion;
 }
 
 /**

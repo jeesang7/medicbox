@@ -187,6 +187,7 @@ void onboardSensorReaderTask(void *mode) {
 
 	int snprintfreturn = 0;
 	uint32_t motion_pose = 0;
+  uint8_t medicine_completion = 0;
 
 	gucSensorTopicName[31] = '\0';
 
@@ -205,6 +206,7 @@ void onboardSensorReaderTask(void *mode) {
 		BSP_GYRO_GetXYZ(GYR_Value);
 		BSP_MAGNETO_GetXYZ(MAG_Value);
                 PROXIMITY_Value = BSP_Proximity_Read();
+    medicine_completion = Medicine_GetState();
                 
 		IotLogInfo("Accelerometer [X: %d] ", ACC_Value);
 
@@ -239,12 +241,12 @@ void onboardSensorReaderTask(void *mode) {
 						"\"Temp\": %d, \"Hum\": %d, \"Press\": %d, "
 						"\"Accel_X\": %d, \"Accel_Y\": %d, \"Accel_Z\": %d, \"Motion_Pose\": %d,"
 						"\"Gyro_X\": %d, \"Gyro_Y\": %d, \"Gyro_Z\": %d, "
-						"\"Magn_X\": %d, \"Magn_Y\": %d, \"Magn_Z\": %d, \"Proxi\": %d"
+						"\"Magn_X\": %d, \"Magn_Y\": %d, \"Magn_Z\": %d, \"Medicine\": %d, \"Proxi\": %d"
 						"}", "st-discovery-board-01", (int) TEMPERATURE_Value,
 				(int) HUMIDITY_Value, (int) PRESSURE_Value, ACC_Value[0],
 				ACC_Value[1], ACC_Value[2], (int)motion_pose, (int) GYR_Value[0],
 				(int) GYR_Value[1], (int) GYR_Value[2], MAG_Value[0],
-				MAG_Value[1], MAG_Value[2], (int) PROXIMITY_Value);
+				MAG_Value[1], MAG_Value[2], (int) medicine_completion, (int) PROXIMITY_Value);
 
 		IotLogInfo(
 				"Publishing sensor data as json string: %s of length [ %d]\n",
