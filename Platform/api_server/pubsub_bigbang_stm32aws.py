@@ -12,7 +12,7 @@ import json
 import os
 import pathlib
 
-config_thingspark = True   # connection to https://www.thingspark.co.kr/channels/65736
+config_thingspark = False   # connection to https://www.thingspark.co.kr/channels/65736
 
 # This sample uses the Message Broker for AWS IoT to send and receive messages
 # through an MQTT connection. On startup, the device connects to the server,
@@ -87,7 +87,8 @@ def on_message_received(topic, payload, **kwargs):
     temp_acc_x = jsondata.get('Accel_X','')
     temp_acc_y = jsondata.get('Accel_Y','')
     temp_acc_z = jsondata.get('Accel_Z','')
-    print('get an Accel_X from jsondata: ' + str(temp_acc_x))
+    medicine_completion = jsondata.get('Medicine','')
+    print('got medicine_completion from jsondata: ' + str(medicine_completion))
     current_path = os.path.dirname(os.path.abspath(__file__))
     if (pathlib.Path(current_path + '/saved_data.json')).exists():
         with open(current_path + '/saved_data.json', 'w') as outfile:
