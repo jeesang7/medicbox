@@ -7,15 +7,33 @@ import json
 import flask
 import time
 import pathlib
+from apscheduler.schedulers.background import BackgroundScheduler
 
 webApp = flask.Flask(__name__)
+job = None
 
+
+def _turnon():
+    # TODO: turn on LED via shadow
+    pass
+
+def update_everyday_job(hour=7, minute=30):
+    global job
+
+    if job != None:
+        job.remove_job('turnon_job')
+        job = None
+        print("remove background job")
+
+    job = BackgroundScheduler(timezone="Asia/Seoul")
+    job.add_job(_turnon, "cron", hour=hour, minute=minute, id='turnon_job')
+    job.start()
+    print("BackgroundScheduler started: ", str(hour), str(minute), " everyday; ", str(job))
 
 @webApp.route("/")
 def _home():
     print('api_server request: ' + str(flask.request) + ' body: ' + str(flask.request.data))
     return 'Hello, api_server World!\n'
-
 
 @webApp.route("/data", methods=["GET"])
 def index():
@@ -47,13 +65,16 @@ def index():
 def _control():
     print('api_server /control request: ' + str(flask.request) + ' body: ' + str(flask.request.data))
     ctrl = flask.request.get_json()
-    print('api_server /control json: ' + str(ctrl))
+    h = ctrl['time'].split(':')[0]
+    m = ctrl['time'].split(':')[1]
+    print('api_server /control json: ' + str(ctrl), h, m)
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     if (pathlib.Path(current_path + '/medicine.json')).exists():
         with open(current_path + '/medicine.json', 'w', encoding='utf8') as cf:
             try:
                 json.dump(ctrl, cf)
+                update_everyday_job(h, m)
                 ret = {'status': 'ok'}
             except Exception as e:
                 print('failed to write medicine.json')
@@ -71,6 +92,7 @@ if __name__ == '__main__':
         time.sleep(1)
         time_cnt -= 1
 
+    update_everyday_job()
     if allowed_external:
         webApp.run(
             host='0.0.0.0',
