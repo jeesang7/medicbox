@@ -54,6 +54,7 @@ flutter:
     - assets/design_course/
     - assets/fitness_app/
     - assets/hotel/
+    - assets/medicbox_app/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
