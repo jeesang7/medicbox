@@ -10,6 +10,7 @@ import sys
 import threading
 import traceback
 from uuid import uuid4
+import time
 
 # - Overview -
 # This sample uses the AWS IoT Device Shadow Service to keep a property in
@@ -51,6 +52,7 @@ parser.add_argument('--proxy-host', help="Hostname for proxy to connect to. Note
 parser.add_argument('--proxy-port', type=int, default=8080, help="Port for proxy to connect to.")
 parser.add_argument('--verbosity', choices=[x.name for x in io.LogLevel], default=io.LogLevel.NoLogs.name,
     help='Logging level')
+parser.add_argument('--interactive', default="key", help='Input the desired value. In the case of false, run with the specified value.')
 
 # Using globals to simplify sample code
 is_sample_done = threading.Event()
@@ -330,15 +332,21 @@ if __name__ == '__main__':
         # Ensure that publish succeeds
         publish_get_future.result()
 
-        # Launch thread to handle user input.
-        # A "daemon" thread won't prevent the program from shutting down.
-        print("Launching thread to read user input...")
-        user_input_thread = threading.Thread(target=user_input_thread_fn, name='user_input_thread')
-        user_input_thread.daemon = True
-        user_input_thread.start()
+        if args.interactive == "key":
+            # Launch thread to handle user input.
+            # A "daemon" thread won't prevent the program from shutting down.
+            print("Launching thread to read user input...")
+            user_input_thread = threading.Thread(target=user_input_thread_fn, name='user_input_thread')
+            user_input_thread.daemon = True
+            user_input_thread.start()
+        else:
+            time.sleep(1)
+            print("Enabled non-interactive with specific value: ", str(args.interactive))
+            change_shadow_value(str(args.interactive))
 
     except Exception as e:
         exit(e)
 
-    # Wait for the sample to finish (user types 'quit', or an error occurs)
-    is_sample_done.wait()
+    if args.interactive == "key":
+        # Wait for the sample to finish (user types 'quit', or an error occurs)
+        is_sample_done.wait()

@@ -26,6 +26,7 @@ SOFTWARE.
 #include "../../../../../../Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h"
 #include "iot_json_utils.h"
 #include "platform/iot_clock.h"
+#include "main.h"
 
 int init_shadow_callbacks(IotMqttConnection_t * pMqttConnection, const char * pIdentifier);
 
@@ -389,6 +390,7 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
                             currentState );
 
                 currentState = 1;
+                Medicine_SetState(0);
 
                 //Turn ON the LED
                 BSP_LED_On(LED2);

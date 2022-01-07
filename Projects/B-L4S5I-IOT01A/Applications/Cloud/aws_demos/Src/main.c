@@ -758,6 +758,11 @@ uint8_t Medicine_GetState()
   return medicine_completion;
 }
 
+void Medicine_SetState(uint8_t state)
+{
+  medicine_completion = state;
+}
+
 /**
  * @brief Blink LED for 'count' cycles of 'period' period and 'duty' ON duration.
  * duty < 0 tells to start with an OFF state.

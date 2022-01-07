@@ -88,6 +88,7 @@ void Error_Handler(void);
 #define ES_WIFI_DATA_READY_EXTI_IRQn EXTI1_IRQn
 /* USER CODE BEGIN Private defines */
 uint8_t Medicine_GetState();
+void Medicine_SetState(uint8_t state);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

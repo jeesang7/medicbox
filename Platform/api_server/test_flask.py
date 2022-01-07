@@ -14,8 +14,9 @@ job = None
 
 
 def _turnon():
-    # TODO: turn on LED via shadow
-    pass
+    os.system("python3 shadow.py --endpoint a1q9s90c2jjb67-ats.iot.ap-northeast-2.amazonaws.com --root-ca AmazonRootCA1.pem --cert deb9e2ad9c-certificate.pem.crt --key deb9e2ad9c-private.pem.key --shadow-property powerOn --thing-name medicbox --interactive 0")
+    time.sleep(1)
+    os.system("python3 shadow.py --endpoint a1q9s90c2jjb67-ats.iot.ap-northeast-2.amazonaws.com --root-ca AmazonRootCA1.pem --cert deb9e2ad9c-certificate.pem.crt --key deb9e2ad9c-private.pem.key --shadow-property powerOn --thing-name medicbox --interactive 1")
 
 def update_everyday_job(hour=7, minute=30):
     global job
