@@ -33,6 +33,7 @@
 
 /* Standard includes. */
 #include <string.h>
+#include <stdlib.h>
 
 /* JSON utilities include. */
 #include "iot_json_utils.h"
@@ -247,6 +248,16 @@ bool IotJsonUtils_FindJsonValue( const char * pJsonDocument,
             {
                 *pJsonValueLength = jsonValueLength;
             }
+
+            // parse in string type
+			if (*pJsonValue[0] == '\"') {
+				char value[jsonValueLength-1];
+				strncpy(value, *pJsonValue + 1, jsonValueLength-2);
+                value[jsonValueLength-2] = '\0';
+				// configPRINTF(("substring value: %s, %d, %d, *** \r\n", value, strlen(value), atoi(value)));
+                strcpy(*pJsonValue, value);
+                *pJsonValueLength = jsonValueLength-2;
+			}
 
             return true;
         }

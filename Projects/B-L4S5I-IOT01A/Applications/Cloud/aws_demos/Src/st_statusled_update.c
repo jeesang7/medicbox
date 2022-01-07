@@ -211,6 +211,8 @@ static void _shadowDeltaCallback( void * pCallbackContext,
      * it from being placed on the call stack. */
     static char pUpdateDocument[ EXPECTED_REPORTED_JSON_SIZE + 1 ] = { 0 };
 
+    IotLogWarn( "_shadowDeltaCallback called" );
+
     /* Check if there is a different "powerOn" state in the Shadow. */
     deltaFound = _getDelta( pCallbackParam->u.callback.pDocument,
                             pCallbackParam->u.callback.documentLength,
@@ -320,8 +322,13 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
     const char * pPrevious = NULL, * pCurrent = NULL;
     size_t previousLength = 0, currentLength = 0;
 
+    /* Stored state. */
+    static int32_t currentState = 0;
+
     /* Silence warnings about unused parameters. */
     ( void ) pCallbackContext;
+
+    IotLogWarn( "_shadowUpdatedCallback called" );
 
     /* Find the previous Shadow document. */
     previousFound = _getUpdatedState( pCallbackParam->u.callback.pDocument,
@@ -340,6 +347,10 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
     /* Log the previous and current states. */
     if( ( previousFound == true ) && ( currentFound == true ) )
     {
+        bool powerOnFound = false;
+        const char * pState = NULL;
+        size_t stateLength = 0;
+
         IotLogInfo( "Shadow was updated!\r\n"
                     "Previous: {\"state\":%.*s}\r\n"
                     "Current:  {\"state\":%.*s}",
@@ -347,6 +358,49 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
                     pPrevious,
                     currentLength,
                     pCurrent );
+
+        powerOnFound = IotJsonUtils_FindJsonValue( pCurrent,
+                                             currentLength,
+                                             "powerOn",
+                                             7,
+                                             &pState,
+                                             &stateLength );
+        if (powerOnFound) {
+            IotLogInfo( "Found IotJsonUtils_FindJsonValue, powerOn, %d, %s ***\r\n", stateLength, pState);
+
+            /* Change the current state based on the value in the update document. */
+            if( strcmp(pState, "0") == 0 )
+            {
+                IotLogInfo( "%.*s changing state from %d to 0.",
+                            pCallbackParam->thingNameLength,
+                            pCallbackParam->pThingName,
+                            currentState );
+
+                currentState = 0;
+
+                //Turn OFF the LED
+                BSP_LED_Off(LED2);
+            }
+            else if( strcmp(pState, "1") == 0 )
+            {
+                IotLogInfo( "%.*s changing state from %d to 1.",
+                            pCallbackParam->thingNameLength,
+                            pCallbackParam->pThingName,
+                            currentState );
+
+                currentState = 1;
+
+                //Turn ON the LED
+                BSP_LED_On(LED2);
+            }
+            else
+            {
+                IotLogWarn( "Unknown powerOn state parsed from update document." );
+            }
+        }
+        else {
+            IotLogInfo( "Not Found, powerOnFound\r\n");
+        }
     }
     else
     {
