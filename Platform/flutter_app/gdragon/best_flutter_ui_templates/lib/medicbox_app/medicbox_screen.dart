@@ -29,17 +29,17 @@ class _MedicBoxScreenState extends State<MedicBoxScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: size.height * 0.03),
             FutureBuilder<MedicBox>(
               future: medicbox,
               builder: (context, snapshot) {
                 var ret;
                 if (snapshot.hasData) {
                   ret = snapshot.data.medicineCompleted;
+                  print('ret: ' + ret.toString());
                   if (ret == '' || ret != 1) {
-                    ret = '오늘은 아직 약을 복용하지 않았습니다.';
+                    ret = '오늘은 아직 복용 안했네요. 💊';
                   } else {
-                    ret = '오늘은 약을 복용 했습니다. 완료. 👌';
+                    ret = '오늘은 약을 복용 했습니다.\r\n완료. 👌';
                   }
                 } else if (snapshot.hasError) {
                   ret = "${snapshot.error}";
@@ -61,11 +61,13 @@ class _MedicBoxScreenState extends State<MedicBoxScreen> {
                 );
               },
             ),
+            SizedBox(height: size.height * 0.03),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
               child: ElevatedButton(
                   onPressed: () {
-                    fetchStatus();
+                    medicbox = fetchStatus();
+                    setState(() {});
                   },
                   child: Text('새로 고침')),
             ),
@@ -123,23 +125,11 @@ Future<MedicBox> updateMedicine(String time) async {
   }
 }
 
-Future<http.Response> createAlbum(String title) {
-  return http.post(
-    Uri.parse('https://jsonplaceholder.typicode.com/albums'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'title': title,
-    }),
-  );
-}
-
 class MedicBox {
   final int accX;
   final int accY;
   final int accZ;
-  final String medicineCompleted;
+  final int medicineCompleted;
   final String medicineTime;
 
   MedicBox(
