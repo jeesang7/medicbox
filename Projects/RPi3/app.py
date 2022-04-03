@@ -15,13 +15,35 @@ app = flask.Flask(__name__)
 job = None
 
 
+def set_medicine_data():
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    if (pathlib.Path(current_path + "/saved_data.json")).exists():
+        with open(current_path + "/saved_data.json", "r") as jsonFile:
+            data = json.load(jsonFile)
+
+        data["Medicine"] = 1
+
+        with open(current_path + "/saved_data.json", "w") as jsonFile:
+            json.dump(data, jsonFile)
+
+
+def _turnoff():
+    GPIO.output(17, GPIO.HIGH)
+
+
 def _turnon():
     GPIO.output(17, GPIO.HIGH)
     time.sleep(1)
     GPIO.output(17, GPIO.LOW)
 
 
-def update_everyday_job(hour=0, minute=25):
+def button_callback(channel):
+    print("Button was pushed!")
+    _turnoff()
+    set_medicine_data()
+
+
+def update_everyday_job(hour=8, minute=36):
     global job
 
     if job != None:
@@ -64,7 +86,7 @@ def index():
             acc_x = data.get("Accel_X", "")
             acc_y = data.get("Accel_Y", "")
             acc_z = data.get("Accel_Z", "")
-            medicine = data.get("Medicine", "")
+            medicine = data.get("Medicine", 0)
 
     if (pathlib.Path(current_path + "/medicine.json")).exists():
         with open(current_path + "/medicine.json", "r", encoding="utf8") as cf:
@@ -122,6 +144,8 @@ if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(17, GPIO.OUT)
     GPIO.output(17, GPIO.HIGH)
+    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.add_event_detect(27, GPIO.RISING, callback=button_callback, bouncetime=200)
 
     update_everyday_job()
 
