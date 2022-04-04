@@ -1,0 +1,12 @@
+[Unit]
+Description=Medicbox App
+
+[Service]
+Type=simple
+ExecStart=/home/jeenowden/work/medicbox/Projects/RPi3/run.sh
+Restart=on-failure
+WorkingDirectory=/home/jeenowden/work/medicbox/Projects/RPi3
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
