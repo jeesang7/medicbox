@@ -13,15 +13,16 @@ import RPi.GPIO as GPIO
 
 app = flask.Flask(__name__)
 job = None
+led_state = 0
 
 
-def set_medicine_data():
+def set_medicine_data(value):
     current_path = os.path.dirname(os.path.abspath(__file__))
     if (pathlib.Path(current_path + "/saved_data.json")).exists():
         with open(current_path + "/saved_data.json", "r") as jsonFile:
             data = json.load(jsonFile)
 
-        data["Medicine"] = 1
+        data["Medicine"] = value
 
         with open(current_path + "/saved_data.json", "w") as jsonFile:
             json.dump(data, jsonFile)
@@ -29,18 +30,24 @@ def set_medicine_data():
 
 def _turnoff():
     GPIO.output(17, GPIO.HIGH)
+    global led_state
+    led_state = 0
 
 
 def _turnon():
     GPIO.output(17, GPIO.HIGH)
     time.sleep(1)
     GPIO.output(17, GPIO.LOW)
+    global led_state
+    led_state = 1
+    print('turnon led_state', led_state)
 
 
 def button_callback(channel):
-    print("Button was pushed!")
-    _turnoff()
-    set_medicine_data()
+    print("Button was pushed!", led_state)
+    if led_state == 1:
+        _turnoff()
+        set_medicine_data(1)
 
 
 def update_everyday_job(hour=8, minute=36):
@@ -77,7 +84,6 @@ def index():
     acc_z = ""
     medicine = ""
     alarm_time = ""
-    # Category = flask.request.args.get("Category")
 
     current_path = os.path.dirname(os.path.abspath(__file__))
     if (pathlib.Path(current_path + "/saved_data.json")).exists():
@@ -92,6 +98,8 @@ def index():
         with open(current_path + "/medicine.json", "r", encoding="utf8") as cf:
             data = json.load(cf)
             alarm_time = data.get("time", "")
+
+    print('led_state:', led_state)
 
     return flask.jsonify(
         {
@@ -129,18 +137,11 @@ def _control():
                 print("failed to write medicine.json")
                 ret = {"status": "error"}
 
+    set_medicine_data(0)
     return flask.jsonify(ret)
 
 
 if __name__ == "__main__":
-    allowed_external = True
-
-    time_cnt = 2
-    while time_cnt > 0:
-        print("running...", str(allowed_external))
-        time.sleep(1)
-        time_cnt -= 1
-
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(17, GPIO.OUT)
     GPIO.output(17, GPIO.HIGH)
@@ -149,7 +150,5 @@ if __name__ == "__main__":
 
     update_everyday_job()
 
-    if allowed_external:
-        app.run(host="0.0.0.0", port=9090, threaded=True, use_reloader=False)
-    else:
-        app.run(host="127.0.0.1", port=9090, threaded=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=9090, threaded=True, use_reloader=False)
+
