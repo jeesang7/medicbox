@@ -16,7 +16,7 @@ job = None
 led_state = 0
 
 
-def set_medicine_data(value):
+def update_medicine_state(value):
     current_path = os.path.dirname(os.path.abspath(__file__))
     if (pathlib.Path(current_path + "/saved_data.json")).exists():
         with open(current_path + "/saved_data.json", "r") as jsonFile:
@@ -41,13 +41,14 @@ def _turnon():
     global led_state
     led_state = 1
     print('turnon led_state', led_state)
+    update_medicine_state(0)
 
 
 def button_callback(channel):
     print("Button was pushed!", led_state)
     if led_state == 1:
         _turnoff()
-        set_medicine_data(1)
+        update_medicine_state(1)
 
 
 def update_everyday_job(hour=8, minute=36):
@@ -137,7 +138,13 @@ def _control():
                 print("failed to write medicine.json")
                 ret = {"status": "error"}
 
-    set_medicine_data(0)
+    if 'medicine_completion' in ctrl.keys():
+        val = ctrl["medicine_completion"]
+        update_medicine_state(val)
+        print('find medicine_completion in control: ', val)
+    else:
+        update_medicine_state(0)
+
     return flask.jsonify(ret)
 
 
