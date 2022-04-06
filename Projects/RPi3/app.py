@@ -42,6 +42,8 @@ def _turnon():
     led_state = 1
     print('turnon led_state', led_state)
     update_medicine_state(0)
+    curpath = os.path.dirname(os.path.abspath(__file__))
+    os.system("play -q " + curpath + "/mixkit-greeting-music-box-tone-699.wav")
 
 
 def button_callback(channel):
