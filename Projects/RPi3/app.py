@@ -157,7 +157,14 @@ if __name__ == "__main__":
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.add_event_detect(27, GPIO.RISING, callback=button_callback, bouncetime=200)
 
-    update_everyday_job()
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    if (pathlib.Path(current_path + "/medicine.json")).exists():
+        with open(current_path + "/medicine.json", "r", encoding="utf8") as cf:
+            data = json.load(cf)
+            alarm_time = data.get("time", "")
+            h = alarm_time.split(":")[0]
+            m = alarm_time.split(":")[1]
+    update_everyday_job(h, m)   # NOTE: int(h) ?
 
     app.run(host="0.0.0.0", port=9090, threaded=True, use_reloader=False)
 
